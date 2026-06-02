@@ -23,5 +23,10 @@ dependencies = [
     "networkx>=2.6",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+]
+
 [tool.setuptools]
 packages = ["floyd_warshall"]
