@@ -31,6 +31,24 @@ Matrix = List[List[float]]
 Snapshot = Dict[str, object]
 
 
+def adjacency_to_inf(adj: Matrix) -> Matrix:
+    """Переводить матрицю суміжності з угоди ``0 == немає ребра`` в угоду з ``INF``.
+
+    Повертає нову матрицю відстаней: нулі на діагоналі, ваги наявних ребер, а
+    відсутні ребра — :data:`INF`. Це спільна ініціалізація для покрокової
+    версії алгоритму (і зручний місток між двома угодами про вхід).
+    """
+    n = len(adj)
+    dist: Matrix = [[INF] * n for _ in range(n)]
+    for i in range(n):
+        for j in range(n):
+            if i == j:
+                dist[i][j] = 0
+            elif adj[i][j] != 0:
+                dist[i][j] = adj[i][j]
+    return dist
+
+
 def floyd_warshall_steps(adj: Matrix) -> Tuple[Matrix, List[List[Optional[int]]], List[Snapshot]]:
     """Інструментована версія Флойда–Воршала для покрокового розбору.
 
@@ -54,18 +72,11 @@ def floyd_warshall_steps(adj: Matrix) -> Tuple[Matrix, List[List[Optional[int]]]
     (плюс ще :math:`O(n^2)` на ``nxt`` та на знімки).
     """
     n = len(adj)
-    dist: Matrix = [[INF] * n for _ in range(n)]
-    nxt: List[List[Optional[int]]] = [[None] * n for _ in range(n)]
-
-    # --- ініціалізація: нулі на діагоналі, ваги наявних ребер, решта — ∞ ---
-    for i in range(n):
-        for j in range(n):
-            if i == j:
-                dist[i][j] = 0
-                nxt[i][j] = j
-            elif adj[i][j] != 0:
-                dist[i][j] = adj[i][j]
-                nxt[i][j] = j
+    dist: Matrix = adjacency_to_inf(adj)
+    # ``nxt[i][j] = j`` для кожної відомої (скінченної) відстані, інакше ``None``.
+    nxt: List[List[Optional[int]]] = [
+        [j if dist[i][j] != INF else None for j in range(n)] for i in range(n)
+    ]
 
     # знімок початкового стану (жодної проміжної вершини ще не відкрито)
     snapshots: List[Snapshot] = [
@@ -75,14 +86,14 @@ def floyd_warshall_steps(adj: Matrix) -> Tuple[Matrix, List[List[Optional[int]]]
     # --- основні ітерації: «відкриваємо» вершини 0, 1, 2, ... по черзі ---
     for k in range(n):
         prev = deepcopy(dist)  # копія лише задля підсвічування змін
+        changed: Set[Tuple[int, int]] = set()
         for i in range(n):
             for j in range(n):
-                if dist[i][k] + dist[k][j] < dist[i][j]:
-                    dist[i][j] = dist[i][k] + dist[k][j]
+                via_k = dist[i][k] + dist[k][j]
+                if via_k < dist[i][j]:
+                    dist[i][j] = via_k
                     nxt[i][j] = nxt[i][k]  # шлях i -> j тепер іде через k
-        changed: Set[Tuple[int, int]] = {
-            (i, j) for i in range(n) for j in range(n) if dist[i][j] != prev[i][j]
-        }
+                    changed.add((i, j))     # релаксація лише зменшує — зміна = покращення
         snapshots.append(
             {"k": k, "matrix": deepcopy(dist), "prev": prev, "changed": changed}
         )

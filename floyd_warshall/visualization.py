@@ -29,29 +29,50 @@ import matplotlib.pyplot as plt
 import networkx as nx
 
 from .core import INF
+from .style import (
+    FIGURE_DPI,
+    configure_style,
+    BLUE_FILL,
+    BLUE_EDGE,
+    GREEN_FILL,
+    GREEN_TXT,
+    GRID_EDGE,
+    PIVOT_EDGE,
+    PATH_COLOR,
+    NODE_COLOR,
+    NEUTRAL_GRAY,
+    DIAG_FILL,
+    HEADER_TXT,
+    SUBLABEL_TXT,
+    MUTED_TXT,
+    INF_TXT_COMPACT,
+    TEXT_DARK,
+    TEXT_FORMULA,
+    TEXT_RESULT,
+)
 
-# ---------------------------------------------------------------------------
-# Палітра
-# ---------------------------------------------------------------------------
-BLUE_FILL, BLUE_EDGE = "#E3F2FD", "#1976D2"
-GREEN_FILL, GREEN_TXT = "#C8E6C9", "#2E7D32"
-GRID_EDGE, GRAY_TXT = "#CFCFCF", "#9aa0a6"
-PIVOT_EDGE = "#1565C0"
-PATH_COLOR = "#D32F2F"
-NODE_COLOR = "#1f77b4"
+# :func:`configure_style` лишається доступною з цього модуля задля сумісності
+# (приклади імпортують її саме звідси), але визначена в :mod:`floyd_warshall.style`.
 
-
-def configure_style() -> None:
-    """Налаштовує глобальні параметри matplotlib (DPI, шрифт із кирилицею та ∞)."""
-    plt.rcParams["figure.dpi"] = 110
-    plt.rcParams["font.size"] = 11
-    plt.rcParams["font.family"] = "DejaVu Sans"  # містить кирилицю та символ ∞
+__all__ = [
+    "configure_style",
+    "format_value",
+    "build_graph",
+    "draw_graph",
+    "draw_matrix",
+    "draw_matrix_standalone",
+    "draw_floyd_step",
+    "draw_evolution",
+    "step_summary",
+    "show_step",
+    "print_distance_matrix",
+]
 
 
 # ---------------------------------------------------------------------------
 # Допоміжні форматувальники
 # ---------------------------------------------------------------------------
-def _fmt(v: float) -> str:
+def format_value(v: float) -> str:
     """Форматує значення матриці; нескінченність -> символ ∞."""
     return "∞" if v == INF else f"{v:g}"
 
@@ -61,8 +82,8 @@ def _sum_expr(a: float, b: float) -> str:
 
     Напр. ``4 + (-2)`` друкується як ``4+(-2)``, а ``3 + 1`` — як ``3+1``.
     """
-    sa = _fmt(a)
-    sb = f"({_fmt(b)})" if (b != INF and b < 0) else _fmt(b)
+    sa = format_value(a)
+    sb = f"({format_value(b)})" if (b != INF and b < 0) else format_value(b)
     return f"{sa}+{sb}"
 
 
@@ -108,7 +129,7 @@ def draw_graph(
             for t in range(len(highlight_path) - 1)
         }
 
-    edge_colors = [PATH_COLOR if (u, v) in path_edges else "#9E9E9E" for u, v in G.edges()]
+    edge_colors = [PATH_COLOR if (u, v) in path_edges else NEUTRAL_GRAY for u, v in G.edges()]
     widths = [3.0 if (u, v) in path_edges else 1.6 for u, v in G.edges()]
     node_colors = [
         PATH_COLOR if (highlight_path and node in highlight_path) else NODE_COLOR
@@ -168,32 +189,32 @@ def draw_matrix(
     ax.axis("off")
     ax.set_title(title, fontsize=12, pad=8)
 
-    ax.text(0.5, 0.5, "i→j", ha="center", va="center", fontsize=8.5, color="#777")
+    ax.text(0.5, 0.5, "i→j", ha="center", va="center", fontsize=8.5, color=SUBLABEL_TXT)
     for j in range(n):
-        ax.text(j + 1.5, 0.5, labels[j], ha="center", va="center", fontweight="bold", color="#555")
+        ax.text(j + 1.5, 0.5, labels[j], ha="center", va="center", fontweight="bold", color=HEADER_TXT)
     for i in range(n):
-        ax.text(0.5, i + 1.5, labels[i], ha="center", va="center", fontweight="bold", color="#555")
+        ax.text(0.5, i + 1.5, labels[i], ha="center", va="center", fontweight="bold", color=HEADER_TXT)
 
     for i in range(n):
         for j in range(n):
             face = "white"
             if i == j:
-                face = "#FAFAFA"
+                face = DIAG_FILL
             if pivot is not None and (i == pivot or j == pivot):
                 face = BLUE_FILL
             if (i, j) in changed:
                 face = GREEN_FILL
             ax.add_patch(plt.Rectangle((j + 1, i + 1), 1, 1, facecolor=face, edgecolor=GRID_EDGE, linewidth=1))
             val = matrix[i][j]
-            txt = _fmt(val)
+            txt = format_value(val)
             if (i, j) in changed:
                 ax.text(j + 1.5, i + 1.42, txt, ha="center", va="center",
                         fontsize=12, fontweight="bold", color=GREEN_TXT)
                 if prev is not None:
-                    ax.text(j + 1.5, i + 1.78, "(" + _fmt(prev[i][j]) + ")", ha="center", va="center",
-                            fontsize=6.5, color="#9E9E9E")
+                    ax.text(j + 1.5, i + 1.78, "(" + format_value(prev[i][j]) + ")", ha="center", va="center",
+                            fontsize=6.5, color=NEUTRAL_GRAY)
             else:
-                color = "#CFCFCF" if val == INF else "#222"
+                color = INF_TXT_COMPACT if val == INF else TEXT_DARK
                 ax.text(j + 1.5, i + 1.5, txt, ha="center", va="center", fontsize=12, color=color)
 
     if pivot is not None:
@@ -229,7 +250,7 @@ def draw_matrix_standalone(
 
     for j in range(n):
         ax.text(cxc(j), hw / 2, labels[j], ha="center", va="center", fontsize=15, fontweight="bold")
-    ax.text(hw / 2, hw / 2, "i→j", ha="center", va="center", fontsize=9, color=GRAY_TXT)
+    ax.text(hw / 2, hw / 2, "i→j", ha="center", va="center", fontsize=9, color=MUTED_TXT)
     for i in range(n):
         ax.text(hw / 2, ryc(i), labels[i], ha="center", va="center", fontsize=15, fontweight="bold")
 
@@ -238,8 +259,8 @@ def draw_matrix_standalone(
             ax.add_patch(plt.Rectangle((hw + j * cell, hw + i * cell), cell, cell,
                          facecolor="white", edgecolor=GRID_EDGE, linewidth=1))
             v = matrix[i][j]
-            ax.text(cxc(j), ryc(i), _fmt(v), ha="center", va="center",
-                    fontsize=14, color=GRAY_TXT if v == INF else "black")
+            ax.text(cxc(j), ryc(i), format_value(v), ha="center", va="center",
+                    fontsize=14, color=MUTED_TXT if v == INF else "black")
 
     ax.set_title(title or "Матриця D", fontsize=15, pad=12)
     fig.tight_layout()
@@ -305,11 +326,11 @@ def draw_floyd_step(
     # заголовки рядків/стовпців
     for j in range(n):
         ax.text(cell_xc(j), col_hdr_yc, labels[j], ha="center", va="center",
-                fontsize=15, fontweight="bold", color="#555")
-    ax.text(left_pad + header_w / 2, col_hdr_yc, "i→j", ha="center", va="center", fontsize=9, color=GRAY_TXT)
+                fontsize=15, fontweight="bold", color=HEADER_TXT)
+    ax.text(left_pad + header_w / 2, col_hdr_yc, "i→j", ha="center", va="center", fontsize=9, color=MUTED_TXT)
     for i in range(n):
         ax.text(left_pad + header_w / 2, row_yc(i), labels[i], ha="center", va="center",
-                fontsize=15, fontweight="bold", color="#555")
+                fontsize=15, fontweight="bold", color=HEADER_TXT)
 
     # клітинки
     for i in range(n):
@@ -321,7 +342,7 @@ def draw_floyd_step(
             elif i == k or j == k:
                 face = BLUE_FILL
             elif i == j:
-                face = "#FAFAFA"
+                face = DIAG_FILL
             else:
                 face = "white"
             ax.add_patch(plt.Rectangle((x0, y0), cell_w, cell_h, facecolor=face, edgecolor=GRID_EDGE, linewidth=1))
@@ -332,13 +353,13 @@ def draw_floyd_step(
                 old, res = prev[i][j], matrix[i][j]
                 improved = (i, j) in changed
                 lines = [
-                    (f"D[{a}][{b}] = min(", "#555", "normal"),
-                    (f"  D[{a}][{b}],", "#777", "normal"),
-                    (f"  D[{a}][{c}]+D[{c}][{b}]", "#777", "normal"),
-                    (") = min(", "#555", "normal"),
-                    (f"  {_fmt(old)},", "#3c4043", "normal"),
-                    (f"  {_sum_expr(dik, dkj)}", "#3c4043", "normal"),
-                    (f") = {_fmt(res)}", GREEN_TXT if improved else "#1a1a1a", "bold"),
+                    (f"D[{a}][{b}] = min(", HEADER_TXT, "normal"),
+                    (f"  D[{a}][{b}],", SUBLABEL_TXT, "normal"),
+                    (f"  D[{a}][{c}]+D[{c}][{b}]", SUBLABEL_TXT, "normal"),
+                    (") = min(", HEADER_TXT, "normal"),
+                    (f"  {format_value(old)},", TEXT_FORMULA, "normal"),
+                    (f"  {_sum_expr(dik, dkj)}", TEXT_FORMULA, "normal"),
+                    (f") = {format_value(res)}", GREEN_TXT if improved else TEXT_RESULT, "bold"),
                 ]
                 dy = 0.27
                 y_start = row_yc(i) - dy * (len(lines) - 1) / 2
@@ -347,8 +368,8 @@ def draw_floyd_step(
                             fontsize=8.4 if w == "bold" else 7.7, family="monospace", color=col, fontweight=w)
             else:
                 v = matrix[i][j]
-                ax.text(cell_xc(j), row_yc(i), _fmt(v), ha="center", va="center",
-                        fontsize=14, color=GRAY_TXT if v == INF else "black")
+                ax.text(cell_xc(j), row_yc(i), format_value(v), ha="center", va="center",
+                        fontsize=14, color=MUTED_TXT if v == INF else "black")
 
     # рамка навколо рядка k та стовпця k
     ax.add_patch(plt.Rectangle((xs[0], row_top(k)), total_w - xs[0], cell_h, fill=False, edgecolor=BLUE_EDGE, linewidth=2.5))
@@ -356,7 +377,7 @@ def draw_floyd_step(
 
     ax.text(total_w / 2, total_h - bot_pad * 0.4,
             "у кожній клітинці — повна формула:  D[i][j] = min( поточне , шлях через k ) = min( числа ) = результат (жирним)",
-            ha="center", va="center", fontsize=8.2, color=GRAY_TXT, style="italic")
+            ha="center", va="center", fontsize=8.2, color=MUTED_TXT, style="italic")
 
     kn = labels[k]
     ax.annotate(f"Стовпець {kn} містить\nD[i][{kn}]  (відстань до {kn})",
@@ -436,8 +457,8 @@ def step_summary(snap: Dict[str, object], labels: Sequence[str]) -> str:
             new = snap["matrix"][i][j]
             old = prev[i][j]
             out.append(
-                f"  D[{labels[i]}][{labels[j]}]: {_fmt(old)} → {_fmt(new)}   "
-                f"(бо D[{labels[i]}][{labels[k]}] + D[{labels[k]}][{labels[j]}] = {_sum_expr(a, b)} = {_fmt(new)})"
+                f"  D[{labels[i]}][{labels[j]}]: {format_value(old)} → {format_value(new)}   "
+                f"(бо D[{labels[i]}][{labels[k]}] + D[{labels[k]}][{labels[j]}] = {_sum_expr(a, b)} = {format_value(new)})"
             )
     return "\n".join(out)
 
@@ -454,7 +475,7 @@ def show_step(snap: Dict[str, object], labels: Sequence[str], save_path: Optiona
         title=f"Матриця D після відкриття вершини {labels[snap['k']]}",
     )
     if save_path:
-        fig.savefig(save_path, bbox_inches="tight", dpi=110)
+        fig.savefig(save_path, bbox_inches="tight", dpi=FIGURE_DPI)
     return fig
 
 
@@ -463,4 +484,4 @@ def print_distance_matrix(dist: List[List[float]], labels: Sequence[str]) -> Non
     n = len(labels)
     print("       " + "  ".join("{:>3}".format(labels[j]) for j in range(n)))
     for i in range(n):
-        print("   {} | ".format(labels[i]) + "  ".join("{:>3}".format(_fmt(dist[i][j])) for j in range(n)))
+        print("   {} | ".format(labels[i]) + "  ".join("{:>3}".format(format_value(dist[i][j])) for j in range(n)))

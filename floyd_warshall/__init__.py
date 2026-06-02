@@ -21,6 +21,7 @@
 
 from .core import (
     INF,
+    adjacency_to_inf,
     floyd_warshall,
     floyd_warshall_steps,
     has_negative_cycle,
@@ -29,6 +30,7 @@ from .core import (
 
 __all__ = [
     "INF",
+    "adjacency_to_inf",
     "floyd_warshall",
     "floyd_warshall_steps",
     "reconstruct_path",
