@@ -277,7 +277,7 @@ def draw_floyd_step(
     prev: Optional[List[List[float]]] = None,
     changed: Optional[Set[Tuple[int, int]]] = None,
     title: Optional[str] = None,
-    cell_w: float = 2.7,
+    cell_w: float = 3.4,
 ):
     """Детальний кадр кроку Флойда–Воршала.
 
@@ -300,8 +300,8 @@ def draw_floyd_step(
         prev = matrix
     n = len(labels)
 
-    cell_h, header_w, header_h = 2.12, 1.05, 1.0
-    left_pad, top_pad, bot_pad = 4.3, 1.9, 0.6
+    cell_h, header_w, header_h = 2.55, 1.05, 1.0
+    left_pad, top_pad, bot_pad = 2.7, 1.15, 0.5
     xs = [left_pad + header_w + j * cell_w for j in range(n)]
     total_w = left_pad + header_w + n * cell_w
     total_h = top_pad + header_h + n * cell_h + bot_pad
@@ -361,15 +361,15 @@ def draw_floyd_step(
                     (f"  {_sum_expr(dik, dkj)}", TEXT_FORMULA, "normal"),
                     (f") = {format_value(res)}", GREEN_TXT if improved else TEXT_RESULT, "bold"),
                 ]
-                dy = 0.27
+                dy = 0.34
                 y_start = row_yc(i) - dy * (len(lines) - 1) / 2
                 for t, (txt, col, w) in enumerate(lines):
-                    ax.text(x0 + 0.13, y_start + t * dy, txt, ha="left", va="center",
-                            fontsize=8.4 if w == "bold" else 7.7, family="monospace", color=col, fontweight=w)
+                    ax.text(x0 + 0.16, y_start + t * dy, txt, ha="left", va="center",
+                            fontsize=16.8 if w == "bold" else 15.4, family="monospace", color=col, fontweight=w)
             else:
                 v = matrix[i][j]
                 ax.text(cell_xc(j), row_yc(i), format_value(v), ha="center", va="center",
-                        fontsize=14, color=MUTED_TXT if v == INF else "black")
+                        fontsize=26, color=MUTED_TXT if v == INF else "black")
 
     # рамка навколо рядка k та стовпця k
     ax.add_patch(plt.Rectangle((xs[0], row_top(k)), total_w - xs[0], cell_h, fill=False, edgecolor=BLUE_EDGE, linewidth=2.5))
