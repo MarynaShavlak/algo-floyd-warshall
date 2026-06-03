@@ -14,6 +14,8 @@ import matplotlib.pyplot as plt
 # ---------------------------------------------------------------------------
 #: DPI для всіх збережених/показаних фігур.
 FIGURE_DPI: int = 110
+#: DPI для GIF-анімацій (нижчий за статичні рисунки — менший розмір файлу).
+GIF_DPI: int = 90
 #: Базовий розмір шрифту matplotlib.
 BASE_FONT_SIZE: int = 11
 #: Сімейство шрифтів (містить кирилицю та символ ∞).
@@ -30,6 +32,8 @@ GREEN_FILL, GREEN_TXT = "#C8E6C9", "#2E7D32"
 GRID_EDGE = "#CFCFCF"
 #: Обведення опорного рядка/стовпця ``k``.
 PIVOT_EDGE = "#1565C0"
+#: 🟧 поточна клітинка ``(i, j)`` під час покрокового скану двох внутрішніх циклів.
+SCAN_EDGE = "#F57C00"
 #: 🔴 підсвічений найкоротший шлях (ребра/вершини графа, акценти на графіках).
 PATH_COLOR = "#D32F2F"
 #: Звичайна вершина графа.
@@ -65,3 +69,6 @@ def configure_style() -> None:
     plt.rcParams["figure.dpi"] = FIGURE_DPI
     plt.rcParams["font.size"] = BASE_FONT_SIZE
     plt.rcParams["font.family"] = FONT_FAMILY
+    # анімації тримають десятки кадрів-фігур водночас до зшивання у GIF —
+    # вимикаємо попередження «надто багато відкритих фігур» (їх закриває save_gif)
+    plt.rcParams["figure.max_open_warning"] = 0

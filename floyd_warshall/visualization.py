@@ -38,6 +38,7 @@ from .style import (
     GREEN_TXT,
     GRID_EDGE,
     PIVOT_EDGE,
+    SCAN_EDGE,
     PATH_COLOR,
     NODE_COLOR,
     NEUTRAL_GRAY,
@@ -61,6 +62,7 @@ __all__ = [
     "draw_graph",
     "draw_airport_relaxation",
     "draw_airport_progressive",
+    "draw_airport_progressive_panel",
     "draw_matrix",
     "draw_matrix_standalone",
     "draw_floyd_step",
@@ -241,6 +243,19 @@ def draw_airport_relaxation(direct: float = 10, leg1: float = 4, leg2: float = 3
     return fig
 
 
+# Дані прогресії хабів — спільні для статичної версії (:func:`draw_airport_progressive`)
+# та для GIF-анімації (:func:`draw_airport_progressive_panel`), щоб не дублювати їх.
+_PROG_POS: Dict[str, Tuple[float, float]] = {
+    "i": (0.0, 0.0), "B": (1.4, 1.5), "C": (3.1, 1.5), "j": (4.5, 0.0),
+}
+_PROG_EDGES = [("i", "B", "3"), ("B", "C", "1"), ("C", "j", "2"), ("B", "j", "9")]
+_PROG_PANELS = [
+    ("—", [], "i → j: прямого рейсу немає  →  ∞"),
+    ("B", ["i", "B", "j"], "i → B → j = 3 + 9 = 12"),
+    ("B, C", ["i", "B", "C", "j"], "i → B → C → j = 3 + 1 + 2 = 6"),
+]
+
+
 def _progressive_panel(ax, pos, edges, allowed: str, path: List[str], caption: str) -> None:
     """Одна панель прогресії: граф аеропортів із підсвіченим поточним маршрутом."""
     ax.set_xlim(-0.8, 5.3)
@@ -269,18 +284,31 @@ def draw_airport_progressive(figsize: Tuple[float, float] = (13.5, 4.6)):
 
     :returns: об'єкт ``Figure``.
     """
-    pos = {"i": (0.0, 0.0), "B": (1.4, 1.5), "C": (3.1, 1.5), "j": (4.5, 0.0)}
-    edges = [("i", "B", "3"), ("B", "C", "1"), ("C", "j", "2"), ("B", "j", "9")]
-    panels = [
-        ("—", [], "i → j: прямого рейсу немає  →  ∞"),
-        ("B", ["i", "B", "j"], "i → B → j = 3 + 9 = 12"),
-        ("B, C", ["i", "B", "C", "j"], "i → B → C → j = 3 + 1 + 2 = 6"),
-    ]
     fig, axes = plt.subplots(1, 3, figsize=figsize)
-    for ax, (allowed, path, caption) in zip(axes, panels):
-        _progressive_panel(ax, pos, edges, allowed, path, caption)
+    for ax, (allowed, path, caption) in zip(axes, _PROG_PANELS):
+        _progressive_panel(ax, _PROG_POS, _PROG_EDGES, allowed, path, caption)
     fig.suptitle("Відкриваємо аеропорти-хаби по черзі — маршрут i → j коротшає", fontsize=14)
     fig.tight_layout(rect=(0, 0, 1, 0.94))
+    return fig
+
+
+def draw_airport_progressive_panel(
+    index: int,
+    figsize: Tuple[float, float] = (5.2, 4.7),
+):
+    """Одна панель прогресії хабів як окрема фігура — кадр для GIF-анімації.
+
+    Та сама ідея, що й у :func:`draw_airport_progressive`, але по одному стану на
+    фігуру (щоб зібрати з них анімацію в :func:`floyd_warshall.animation.save_gif`).
+
+    :param index: 0, 1 або 2 — скільки хабів уже «відкрито» (нічого / B / B, C).
+    :returns: об'єкт ``Figure``.
+    """
+    allowed, path, caption = _PROG_PANELS[index]
+    fig, ax = plt.subplots(figsize=figsize)
+    _progressive_panel(ax, _PROG_POS, _PROG_EDGES, allowed, path, caption)
+    fig.suptitle("Відкриваємо хаби по черзі — маршрут i → j коротшає", fontsize=12)
+    fig.tight_layout(rect=(0, 0, 1, 0.92))
     return fig
 
 
@@ -295,6 +323,7 @@ def draw_matrix(
     pivot: Optional[int] = None,
     changed: Optional[Set[Tuple[int, int]]] = None,
     prev: Optional[List[List[float]]] = None,
+    current: Optional[Tuple[int, int]] = None,
 ) -> None:
     """Малює матрицю відстаней як таблицю на заданій осі ``ax``.
 
@@ -302,6 +331,8 @@ def draw_matrix(
         і стовпець). ``None`` — без підсвічування (початковий знімок).
     :param changed: множина клітинок ``(i, j)``, що змінилися (зелені).
     :param prev: попередня матриця — щоб показати старе значення в дужках.
+    :param current: клітинка ``(i, j)``, яку зараз перевіряє скан двох внутрішніх
+        циклів — обводимо помаранчевим (для покрокової анімації кроку).
     """
     n = len(matrix)
     changed = changed or set()
@@ -343,6 +374,11 @@ def draw_matrix(
     if pivot is not None:
         ax.add_patch(plt.Rectangle((pivot + 1, 1), 1, n, fill=False, edgecolor=PIVOT_EDGE, linewidth=2))
         ax.add_patch(plt.Rectangle((1, pivot + 1), n, 1, fill=False, edgecolor=PIVOT_EDGE, linewidth=2))
+
+    if current is not None:
+        ci, cj = current
+        ax.add_patch(plt.Rectangle((cj + 1, ci + 1), 1, 1, fill=False,
+                                   edgecolor=SCAN_EDGE, linewidth=3, zorder=5))
 
 
 def draw_matrix_standalone(
