@@ -663,4 +663,4 @@ def floyd_warshall(adj):
 
 ## Ліцензія
 
-[MIT](LICENSE) © 2026 Serhii
+[MIT](LICENSE) © 2026 Maryna Shavlak
