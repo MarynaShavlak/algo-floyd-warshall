@@ -10,7 +10,8 @@
 """
 
 # _common ПЕРШИМ: налаштовує Agg і sys.path до імпорту matplotlib.pyplot
-from _common import GraphExample, print_saved_location, save_figure
+from _common import print_saved_location, save_figure
+from _graphs import XYZ
 
 import matplotlib.pyplot as plt  # noqa: E402
 
@@ -18,16 +19,8 @@ from floyd_warshall.core import floyd_warshall_steps, has_negative_cycle  # noqa
 from floyd_warshall.style import AXIS_LINE, PATH_COLOR  # noqa: E402
 from floyd_warshall.visualization import configure_style, draw_graph, format_value  # noqa: E402
 
-# --- дані прикладу: цикл X → Y → Z → X, кожне ребро = −1 (сума = −3) ----------
-EXAMPLE = GraphExample(
-    labels=["X", "Y", "Z"],
-    adjacency=[
-        [0, -1, 0],   # X → Y (-1)
-        [0, 0, -1],   # Y → Z (-1)
-        [-1, 0, 0],   # Z → X (-1)
-    ],
-    positions={0: (1.5, 2.2), 1: (2.7, 0.4), 2: (0.3, 0.4)},  # X угорі, Y і Z знизу
-)
+# --- дані прикладу: цикл X → Y → Z → X (єдине джерело — examples/_graphs.py) --
+EXAMPLE = XYZ
 
 
 def main() -> None:

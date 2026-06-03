@@ -9,7 +9,8 @@
 """
 
 # _common ПЕРШИМ: налаштовує Agg і sys.path до імпорту matplotlib.pyplot
-from _common import GraphExample, print_saved_location, report_distances, save_figure
+from _common import print_saved_location, report_distances, save_figure
+from _graphs import ABCDEF
 
 import matplotlib.pyplot as plt  # noqa: E402
 
@@ -22,27 +23,8 @@ from floyd_warshall.visualization import (  # noqa: E402
     show_step,
 )
 
-# --- дані прикладу -----------------------------------------------------------
-# Матриця суміжності (0 = немає ребра). Рядок/стовпець 0..5 = вершини A..F.
-EXAMPLE = GraphExample(
-    labels=["A", "B", "C", "D", "E", "F"],  # вершини (внутрішньо — індекси 0..5)
-    adjacency=[
-        [0, 3, 0, 0, 0, 0],   # A → B (3)
-        [0, 0, 1, 0, 0, 0],   # B → C (1)
-        [0, 0, 0, 7, 0, 2],   # C → D (7), C → F (2)
-        [0, 0, 0, 0, 0, 0],   # D — стік
-        [0, 0, 0, 2, 0, 3],   # E → D (2), E → F (3)
-        [0, 0, 0, 0, 0, 0],   # F — стік
-    ],
-    positions={
-        0: (3.4, 2.6),   # A
-        1: (3.0, 1.7),   # B
-        2: (2.0, 1.7),   # C
-        3: (2.1, 0.0),   # D
-        4: (0.9, 1.7),   # E
-        5: (0.4, 2.7),   # F
-    },
-)
+# --- дані прикладу: граф A–F (єдине джерело — examples/_graphs.py) -----------
+EXAMPLE = ABCDEF
 
 
 def main() -> None:

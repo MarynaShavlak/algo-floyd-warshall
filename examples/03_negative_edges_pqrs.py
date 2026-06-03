@@ -11,7 +11,8 @@
 """
 
 # _common ПЕРШИМ: налаштовує Agg і sys.path до імпорту matplotlib.pyplot
-from _common import GraphExample, print_saved_location, report_distances, save_figure
+from _common import print_saved_location, report_distances, save_figure
+from _graphs import PQRS
 
 from floyd_warshall.core import (  # noqa: E402
     floyd_warshall_steps,
@@ -26,17 +27,8 @@ from floyd_warshall.visualization import (  # noqa: E402
     show_step,
 )
 
-# --- дані прикладу -----------------------------------------------------------
-EXAMPLE = GraphExample(
-    labels=["P", "Q", "R", "S"],
-    adjacency=[
-        [0, 4, 0, 10],   # P → Q (4),  P → S (10)
-        [0, 0, -2, 0],   # Q → R (-2)   ← від'ємне ребро
-        [0, 0, 0, 3],    # R → S (3)
-        [0, 0, 0, 0],    # S — без вихідних ребер
-    ],
-    positions={0: (0.3, 1.0), 1: (1.5, 1.9), 2: (2.9, 1.9), 3: (4.1, 1.0)},  # P, Q, R, S
-)
+# --- дані прикладу: граф P–Q–R–S (єдине джерело — examples/_graphs.py) -------
+EXAMPLE = PQRS
 
 
 def main() -> None:
