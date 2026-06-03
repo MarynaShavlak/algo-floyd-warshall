@@ -22,6 +22,7 @@
 
 from __future__ import annotations
 
+import math
 from typing import Dict, List, Optional, Sequence, Set, Tuple
 
 import matplotlib.pyplot as plt
@@ -58,6 +59,8 @@ __all__ = [
     "format_value",
     "build_graph",
     "draw_graph",
+    "draw_airport_relaxation",
+    "draw_airport_progressive",
     "draw_matrix",
     "draw_matrix_standalone",
     "draw_floyd_step",
@@ -157,6 +160,127 @@ def draw_graph(
     ax.set_title(title)
     ax.axis("off")
     fig.tight_layout()
+    return fig
+
+
+# ---------------------------------------------------------------------------
+# Аналогія з аеропортами (ілюстрації для розділу «Інтуїція»)
+# ---------------------------------------------------------------------------
+def _airport_node(ax, xy: Tuple[float, float], label: str,
+                  *, color: str = NODE_COLOR, r: float = 0.32, fontsize: int = 15) -> None:
+    """Малює один «аеропорт» — кружок із підписом."""
+    ax.add_patch(plt.Circle(xy, r, facecolor=color, edgecolor="white", linewidth=2, zorder=3))
+    ax.text(xy[0], xy[1], label, ha="center", va="center", color="white",
+            fontweight="bold", fontsize=fontsize, zorder=4)
+
+
+def _arrow(ax, src: Tuple[float, float], dst: Tuple[float, float],
+           *, color: str, lw: float, dashed: bool = False, r: float = 0.32) -> None:
+    """Стрілка-«рейс» між двома аеропортами, з відступом ``r`` від кружків."""
+    dx, dy = dst[0] - src[0], dst[1] - src[1]
+    dist = math.hypot(dx, dy) or 1.0
+    ux, uy = dx / dist, dy / dist
+    a = (src[0] + ux * r, src[1] + uy * r)
+    b = (dst[0] - ux * r, dst[1] - uy * r)
+    ax.annotate("", xy=b, xytext=a, zorder=2,
+                arrowprops=dict(arrowstyle="-|>", color=color, lw=lw,
+                                linestyle="--" if dashed else "-"))
+
+
+def draw_airport_relaxation(direct: float = 10, leg1: float = 4, leg2: float = 3,
+                            i_label: str = "i", k_label: str = "k", j_label: str = "j",
+                            figsize: Tuple[float, float] = (7.5, 5.2)):
+    """Схема «прямий рейс проти пересадки»: суть релаксації мовою аеропортів.
+
+    Прямий рейс ``i → j`` (пунктир) проти пересадки ``i → k → j``. Виграшний
+    варіант підсвічено зеленим, унизу — формула ``D[i][j] = min(пряме, через k)``.
+
+    :returns: об'єкт ``Figure``.
+    """
+    via = leg1 + leg2
+    pos_i, pos_j, pos_k = (0.0, 0.0), (5.0, 0.0), (2.5, 2.6)
+    fig, ax = plt.subplots(figsize=figsize)
+    ax.set_xlim(-1.2, 6.2)
+    ax.set_ylim(-2.4, 3.5)
+    ax.set_aspect("equal")
+    ax.axis("off")
+
+    transfer_wins = via < direct
+    transfer_color = GREEN_TXT if transfer_wins else NEUTRAL_GRAY
+    direct_color = NEUTRAL_GRAY if transfer_wins else GREEN_TXT
+
+    _arrow(ax, pos_i, pos_k, color=transfer_color, lw=3.2)
+    _arrow(ax, pos_k, pos_j, color=transfer_color, lw=3.2)
+    _arrow(ax, pos_i, pos_j, color=direct_color, lw=2.2, dashed=True)
+
+    _airport_node(ax, pos_i, i_label)
+    _airport_node(ax, pos_j, j_label)
+    _airport_node(ax, pos_k, k_label, color=BLUE_EDGE)
+
+    def _leg(p, q, text, color):
+        ax.text((p[0] + q[0]) / 2, (p[1] + q[1]) / 2, text, ha="center", va="center",
+                fontsize=12, color=color, fontweight="bold", zorder=5,
+                bbox=dict(boxstyle="round,pad=0.18", fc="white", ec=color, alpha=0.95))
+
+    _leg(pos_i, pos_k, f"{leg1:g} год", transfer_color)
+    _leg(pos_k, pos_j, f"{leg2:g} год", transfer_color)
+    ax.text(2.5, -0.6, f"прямий рейс: {direct:g} год", ha="center", va="center",
+            fontsize=12, color=direct_color, fontweight="bold", zorder=5,
+            bbox=dict(boxstyle="round,pad=0.18", fc="white", ec=direct_color, alpha=0.95))
+
+    ax.text(2.5, -1.5, f"D[{i_label}][{j_label}] = min( {direct:g} ,  {leg1:g}+{leg2:g} ) = {min(direct, via):g}",
+            ha="center", va="center", fontsize=14, family="monospace",
+            color=TEXT_RESULT, fontweight="bold")
+    note = (f"пересадка через {k_label} коротша за прямий рейс"
+            if transfer_wins else f"прямий рейс коротший за пересадку через {k_label}")
+    ax.text(2.5, -2.05, note, ha="center", va="center", fontsize=11,
+            color=GREEN_TXT if transfer_wins else HEADER_TXT, style="italic")
+
+    ax.set_title(f"Аналогія: прямий рейс проти пересадки через хаб {k_label}", fontsize=14, pad=10)
+    fig.tight_layout()
+    return fig
+
+
+def _progressive_panel(ax, pos, edges, allowed: str, path: List[str], caption: str) -> None:
+    """Одна панель прогресії: граф аеропортів із підсвіченим поточним маршрутом."""
+    ax.set_xlim(-0.8, 5.3)
+    ax.set_ylim(-1.7, 2.5)
+    ax.set_aspect("equal")
+    ax.axis("off")
+    path_edges = {(path[t], path[t + 1]) for t in range(len(path) - 1)}
+    for u, v, w in edges:
+        active = (u, v) in path_edges
+        _arrow(ax, pos[u], pos[v], color=PATH_COLOR if active else NEUTRAL_GRAY,
+               lw=3.2 if active else 1.4, r=0.28)
+        ax.text((pos[u][0] + pos[v][0]) / 2, (pos[u][1] + pos[v][1]) / 2, w,
+                ha="center", va="center", fontsize=11, zorder=5,
+                color=PATH_COLOR if active else MUTED_TXT,
+                bbox=dict(boxstyle="round,pad=0.12", fc="white", ec="none", alpha=0.9))
+    for name, xy in pos.items():
+        _airport_node(ax, xy, name, color=PATH_COLOR if name in path else NODE_COLOR,
+                      r=0.28, fontsize=13)
+    ax.set_title(f"Дозволено пересадки: {allowed}", fontsize=12, color=HEADER_TXT, pad=6)
+    ax.text(2.25, -1.45, caption, ha="center", va="center", fontsize=11,
+            color=HEADER_TXT, fontweight="bold")
+
+
+def draw_airport_progressive(figsize: Tuple[float, float] = (13.5, 4.6)):
+    """Три панелі: як дозвіл пересадок через нові хаби поступово вкорочує ``i → j``.
+
+    :returns: об'єкт ``Figure``.
+    """
+    pos = {"i": (0.0, 0.0), "B": (1.4, 1.5), "C": (3.1, 1.5), "j": (4.5, 0.0)}
+    edges = [("i", "B", "3"), ("B", "C", "1"), ("C", "j", "2"), ("B", "j", "9")]
+    panels = [
+        ("—", [], "i → j: прямого рейсу немає  →  ∞"),
+        ("B", ["i", "B", "j"], "i → B → j = 3 + 9 = 12"),
+        ("B, C", ["i", "B", "C", "j"], "i → B → C → j = 3 + 1 + 2 = 6"),
+    ]
+    fig, axes = plt.subplots(1, 3, figsize=figsize)
+    for ax, (allowed, path, caption) in zip(axes, panels):
+        _progressive_panel(ax, pos, edges, allowed, path, caption)
+    fig.suptitle("Відкриваємо аеропорти-хаби по черзі — маршрут i → j коротшає", fontsize=14)
+    fig.tight_layout(rect=(0, 0, 1, 0.94))
     return fig
 
 
