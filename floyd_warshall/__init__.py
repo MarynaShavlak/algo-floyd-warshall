@@ -37,4 +37,6 @@ __all__ = [
     "has_negative_cycle",
 ]
 
+# Єдине джерело правди для версії пакета: pyproject.toml читає його звідси через
+# [tool.setuptools.dynamic] version = { attr = "floyd_warshall.__version__" }.
 __version__ = "1.0.0"

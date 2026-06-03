@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "floyd-warshall-visualized"
-version = "1.0.0"
+dynamic = ["version"]
 description = "Навчальна реалізація та покрокова візуалізація алгоритму Флойда–Воршала"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -21,6 +21,7 @@ classifiers = [
 dependencies = [
     "matplotlib>=3.5",
     "networkx>=2.6",
+    "pillow>=9.1",
 ]
 
 [project.optional-dependencies]
@@ -30,3 +31,7 @@ dev = [
 
 [tool.setuptools]
 packages = ["floyd_warshall"]
+
+# Версію не дублюємо: єдине джерело — floyd_warshall.__version__ (у __init__.py).
+[tool.setuptools.dynamic]
+version = { attr = "floyd_warshall.__version__" }
