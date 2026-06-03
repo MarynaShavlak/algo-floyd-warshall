@@ -68,6 +68,9 @@ def report_distances(
     print()
     for u, v in pairs:
         path = reconstruct_path(nxt, u, v)
+        if path is None:
+            print(f"Найкоротший шлях {labels[u]} → {labels[v]}:  шляху не існує")
+            continue
         joined = " → ".join(labels[w] for w in path)
         print(f"Найкоротший шлях {labels[u]} → {labels[v]}:  {joined}   (довжина = {final_dist[u][v]:g})")
 

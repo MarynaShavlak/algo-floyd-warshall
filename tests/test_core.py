@@ -114,6 +114,28 @@ def test_reconstruct_path_abcdef():
     assert reconstruct_path(nxt, 3, 0) is None           # шляху не існує
 
 
+def test_reconstruct_path_negative_cycle_does_not_hang():
+    """Прохід за nxt на графі з від'ємним циклом не має зациклюватись.
+
+    Цикл 0 → 1 → 2 → 0 (усі −1) плюс ребро 2 → 3: «найкоротший» маршрут у
+    вершину 3 нескінченно петляє циклом, тож reconstruct_path має кинути
+    ValueError, а не зависнути (захист обмежує прохід n кроками).
+    """
+    g = [
+        [0, -1, 0, 0],
+        [0, 0, -1, 0],
+        [-1, 0, 0, 1],
+        [0, 0, 0, 0],
+    ]
+    _, nxt, _ = floyd_warshall_steps(g)
+    raised = False
+    try:
+        reconstruct_path(nxt, 0, 3)
+    except ValueError:
+        raised = True
+    assert raised, "очікували ValueError для маршруту через від'ємний цикл"
+
+
 def test_snapshots_count_equals_n_plus_one():
     adj = [[0, 3, 0], [0, 0, 1], [0, 0, 0]]
     _, _, snapshots = floyd_warshall_steps(adj)

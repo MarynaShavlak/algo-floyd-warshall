@@ -126,6 +126,9 @@ def reconstruct_path(nxt: List[List[Optional[int]]], u: int, v: int) -> Optional
     :param nxt: матриця наступних вершин, повернена :func:`floyd_warshall_steps`.
     :returns: список індексів вершин від ``u`` до ``v`` включно, або ``None``,
         якщо шляху не існує.
+    :raises ValueError: якщо маршрут не завершується за ``n`` кроків — ознака
+        від'ємного циклу на шляху (найкоротшого шляху тоді не існує). Без цієї
+        перевірки прохід за ``nxt`` зациклився б нескінченно.
     """
     if nxt[u][v] is None:
         return None
@@ -133,6 +136,13 @@ def reconstruct_path(nxt: List[List[Optional[int]]], u: int, v: int) -> Optional
     while u != v:
         u = nxt[u][v]  # type: ignore[assignment]
         path.append(u)
+        # коректний найкоротший шлях простий (без повторів вершин), тож не
+        # довший за n вершин; перевищення означає від'ємний цикл на маршруті
+        if len(path) > len(nxt):
+            raise ValueError(
+                "reconstruct_path: маршрут не завершується — граф містить "
+                "від'ємний цикл, тож найкоротшого шляху не існує."
+            )
     return path
 
 
