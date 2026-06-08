@@ -175,7 +175,16 @@ By opening hubs one by one, the routes gradually get shorter: at first a pair ma
 
 ![Animation: opening hubs one by one shortens route i → j](docs/images/en/airport_progressive.gif)
 
-🎬 *MP4 version (smaller file, with playback controls):* [`airport_progressive.mp4`](docs/images/en/airport_progressive.mp4)
+🎬 *MP4 version:* [`airport_progressive.mp4`](docs/images/en/airport_progressive.mp4)
+
+
+
+
+https://github.com/user-attachments/assets/72ff3b7e-afab-42b6-8e56-abffc16d8383
+
+
+
+
 
 Once all vertices have been opened as transfer points, we have tried every possible route — and `D` is left holding the true shortest distances.
 
@@ -267,7 +276,16 @@ In the teaching version ([`floyd_warshall_steps`](floyd_warshall/core.py)), afte
 
 ![Animation: two inner loops sweep all pairs (i, j) for k = C](docs/images/en/sweep_abcdef_k_C.gif)
 
-🎬 *MP4 version (smaller file, with playback controls):* [`sweep_abcdef_k_C.mp4`](docs/images/en/sweep_abcdef_k_C.mp4)
+🎬 *MP4 version:* [`sweep_abcdef_k_C.mp4`](docs/images/en/sweep_abcdef_k_C.mp4)
+
+
+
+
+https://github.com/user-attachments/assets/01a861b2-8405-4f2a-8702-2b617b92e54d
+
+
+
+
 
 <a id="walkthrough"></a>
 
@@ -419,7 +437,16 @@ All snapshots together. You can see that the matrix "matures" already after C is
 
 ![Animation: matrix D matures step by step (A → F)](docs/images/en/evolution_abcdef.gif)
 
-🎬 *MP4 version (smaller file, with playback controls):* [`evolution_abcdef.mp4`](docs/images/en/evolution_abcdef.mp4)
+🎬 *MP4 version:* [`evolution_abcdef.mp4`](docs/images/en/evolution_abcdef.mp4)
+
+
+
+
+https://github.com/user-attachments/assets/06993160-5137-4524-be9e-3d509f381db9
+
+
+
+
 
 <a id="result"></a>
 
@@ -490,7 +517,16 @@ Shortest path A → C:  A → B → C   (length = 4)
 
 ![Animation: unfolding path A → D via the nxt matrix](docs/images/en/path_abcdef_A_to_D.gif)
 
-🎬 *MP4 version (smaller file, with playback controls):* [`path_abcdef_A_to_D.mp4`](docs/images/en/path_abcdef_A_to_D.mp4)
+🎬 *MP4 version:* [`path_abcdef_A_to_D.mp4`](docs/images/en/path_abcdef_A_to_D.mp4)
+
+
+
+
+https://github.com/user-attachments/assets/56bea4e3-39bf-4c65-980f-1ff3ca6df6b4
+
+
+
+
 
 ---
 
@@ -536,7 +572,11 @@ Consider three vertices `X, Y, Z` where **all** the cycle's edges are negative: 
 
 ![Animation: walking the negative cycle X → Y → Z → X while accumulating weight](docs/images/en/negcycle_walk_xyz.gif)
 
-🎬 *MP4 version (smaller file, with playback controls):* [`negcycle_walk_xyz.mp4`](docs/images/en/negcycle_walk_xyz.mp4)
+🎬 *MP4 version:* [`negcycle_walk_xyz.mp4`](docs/images/en/negcycle_walk_xyz.mp4)
+
+
+https://github.com/user-attachments/assets/8b800651-9468-4e8f-8270-10005c227410
+
 
 **Why there is no shortest path here.** Each full traversal `X → Y → Z → X` adds `−3` to the total weight. So the more times you walk the cycle, the "shorter" (smaller in weight) the path — and so on without end: `−3, −6, −9, … → −∞`. There is no minimum, so the notion of "shortest path" loses its meaning.
 
@@ -546,7 +586,15 @@ Consider three vertices `X, Y, Z` where **all** the cycle's edges are negative: 
 
 ![Animation: with each traversal of the cycle the path weight heads toward −∞](docs/images/en/negcycle_weight_divergence.gif)
 
-🎬 *MP4 version (smaller file, with playback controls):* [`negcycle_weight_divergence.mp4`](docs/images/en/negcycle_weight_divergence.mp4)
+🎬 *MP4 version:* [`negcycle_weight_divergence.mp4`](docs/images/en/negcycle_weight_divergence.mp4)
+
+
+
+
+https://github.com/user-attachments/assets/e9277945-e31e-48c9-845a-8559972eac46
+
+
+
 
 **Why the algorithm cannot handle this.** Floyd–Warshall assumes the shortest distances are finite numbers and returns a finite matrix. But for such a graph those numbers are **wrong** (the true answer is `−∞`). The sign of the problem is the diagonal: if `D[i][i] < 0` after the algorithm, then vertex `i` lies on a reachable negative cycle (it "returns to itself" with negative weight).
 
@@ -643,7 +691,15 @@ All snapshots of matrix `D` side by side: the start and the state after opening 
 
 ![Animation: matrix D matures step by step (P → S)](docs/images/en/evolution_pqrs.gif)
 
-🎬 *MP4 version (smaller file, with playback controls):* [`evolution_pqrs.mp4`](docs/images/en/evolution_pqrs.mp4)
+🎬 *MP4 version:* [`evolution_pqrs.mp4`](docs/images/en/evolution_pqrs.mp4)
+
+
+
+
+https://github.com/user-attachments/assets/645e3646-45ed-447e-ade5-abd4989dd5a3
+
+
+
 
 ### Result and path reconstruction (negative example)
 
@@ -667,7 +723,15 @@ Shortest path Q → S:  Q → R → S   (length = 1)
 
 ![Animation: unfolding path P → S via the nxt matrix](docs/images/en/path_pqrs_P_to_S.gif)
 
-🎬 *MP4 version (smaller file, with playback controls):* [`path_pqrs_P_to_S.mp4`](docs/images/en/path_pqrs_P_to_S.mp4)
+🎬 *MP4 version:* [`path_pqrs_P_to_S.mp4`](docs/images/en/path_pqrs_P_to_S.mp4)
+
+
+
+
+https://github.com/user-attachments/assets/f13c491a-1901-4fde-bc9c-f53999ef12a0
+
+
+
 
 ### The final matrix of shortest distances
 
