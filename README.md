@@ -177,7 +177,13 @@ dist = floyd_warshall(adj)        # матриця найкоротших від
 
 ![Анімація: відкриття хабів по черзі вкорочує маршрут i → j](docs/images/airport_progressive.gif)
 
-🎬 *MP4-версія (менший файл, із контролами програвання):* [`airport_progressive.mp4`](docs/images/airport_progressive.mp4)
+🎬 *MP4-версія:* [`airport_progressive.mp4`](docs/images/airport_progressive.mp4)
+
+
+
+https://github.com/user-attachments/assets/68dc5943-0f3a-4960-b050-8e9d15a4466f
+
+
 
 Коли відкрито всі вершини як пересадкові, ми перебрали всі можливі маршрути — і в `D` лишаються справжні найкоротші відстані.
 
@@ -269,7 +275,14 @@ for k in range(n):            # k = поточна проміжна вершин
 
 ![Анімація: два внутрішні цикли перебирають усі пари (i, j) для k = C](docs/images/sweep_abcdef_k_C.gif)
 
-🎬 *MP4-версія (менший файл, із контролами програвання):* [`sweep_abcdef_k_C.mp4`](docs/images/sweep_abcdef_k_C.mp4)
+🎬 *MP4-версія:* [`sweep_abcdef_k_C.mp4`](docs/images/sweep_abcdef_k_C.mp4)
+
+
+
+
+https://github.com/user-attachments/assets/8aa46426-46ec-4919-8887-ba0b8585f6c4
+
+
 
 <a id="walkthrough"></a>
 
@@ -421,7 +434,14 @@ for k in range(n):                 # k = 0 → проміжна вершина A
 
 ![Анімація: матриця D дозріває крок за кроком (A → F)](docs/images/evolution_abcdef.gif)
 
-🎬 *MP4-версія (менший файл, із контролами програвання):* [`evolution_abcdef.mp4`](docs/images/evolution_abcdef.mp4)
+🎬 *MP4-версія:* [`evolution_abcdef.mp4`](docs/images/evolution_abcdef.mp4)
+
+
+
+https://github.com/user-attachments/assets/0148905d-189c-46ac-9cef-e11a17ebb798
+
+
+
 
 <a id="result"></a>
 
@@ -492,7 +512,13 @@ def reconstruct_path(nxt, u, v):
 
 ![Анімація: розгортання шляху A → D за матрицею nxt](docs/images/path_abcdef_A_to_D.gif)
 
-🎬 *MP4-версія (менший файл, із контролами програвання):* [`path_abcdef_A_to_D.mp4`](docs/images/path_abcdef_A_to_D.mp4)
+🎬 *MP4-версія:* [`path_abcdef_A_to_D.mp4`](docs/images/path_abcdef_A_to_D.mp4)
+
+
+
+https://github.com/user-attachments/assets/691a1293-1526-4bb5-8939-3b9bbff6ce2c
+
+
 
 ---
 
@@ -538,7 +564,15 @@ print(has_negative_cycle(dist))   # → True  (на діагоналі є від
 
 ![Анімація: обхід від'ємного циклу X → Y → Z → X із накопиченням ваги](docs/images/negcycle_walk_xyz.gif)
 
-🎬 *MP4-версія (менший файл, із контролами програвання):* [`negcycle_walk_xyz.mp4`](docs/images/negcycle_walk_xyz.mp4)
+🎬 *MP4-версія:* [`negcycle_walk_xyz.mp4`](docs/images/negcycle_walk_xyz.mp4)
+
+
+
+https://github.com/user-attachments/assets/c419c9c0-83ff-457c-9e0b-1a26200881ed
+
+
+
+
 
 **Чому тут немає найкоротшого шляху.** Кожен повний обхід `X → Y → Z → X` додає `−3` до загальної ваги. Тому що більше разів обходити цикл, то «коротший» (менший за вагою) шлях — і так нескінченно: `−3, −6, −9, … → −∞`. Мінімуму не існує, тож поняття «найкоротший шлях» втрачає сенс.
 
@@ -548,7 +582,11 @@ print(has_negative_cycle(dist))   # → True  (на діагоналі є від
 
 ![Анімація: вага шляху з кожним обходом циклу прямує до −∞](docs/images/negcycle_weight_divergence.gif)
 
-🎬 *MP4-версія (менший файл, із контролами програвання):* [`negcycle_weight_divergence.mp4`](docs/images/negcycle_weight_divergence.mp4)
+🎬 *MP4-версія:* [`negcycle_weight_divergence.mp4`](docs/images/negcycle_weight_divergence.mp4)
+
+
+https://github.com/user-attachments/assets/adfa62a0-f91e-408d-96c0-c97b270e948a
+
 
 **Чому алгоритм не може це обробити.** Флойд–Воршал припускає, що найкоротші відстані — скінченні числа, і повертає скінченну матрицю. Але для такого графа ці числа **неправильні** (справжня відповідь — `−∞`). Ознака проблеми — діагональ: якщо після алгоритму `D[i][i] < 0`, вершина `i` лежить на досяжному від'ємному циклі (вона «повертається в себе» з від'ємною вагою).
 
@@ -645,7 +683,15 @@ print(has_negative_cycle(dist))   # → True  (на діагоналі є від
 
 ![Анімація: матриця D дозріває крок за кроком (P → S)](docs/images/evolution_pqrs.gif)
 
-🎬 *MP4-версія (менший файл, із контролами програвання):* [`evolution_pqrs.mp4`](docs/images/evolution_pqrs.mp4)
+🎬 *MP4-версія:* [`evolution_pqrs.mp4`](docs/images/evolution_pqrs.mp4)
+
+
+
+
+https://github.com/user-attachments/assets/5bc2bc30-b7a0-4bf9-a904-72c169eaa2cd
+
+
+
 
 ### Результат і відновлення шляху (від'ємний приклад)
 
@@ -669,7 +715,11 @@ print(has_negative_cycle(dist))   # → True  (на діагоналі є від
 
 ![Анімація: розгортання шляху P → S за матрицею nxt](docs/images/path_pqrs_P_to_S.gif)
 
-🎬 *MP4-версія (менший файл, із контролами програвання):* [`path_pqrs_P_to_S.mp4`](docs/images/path_pqrs_P_to_S.mp4)
+🎬 *MP4-версія:* [`path_pqrs_P_to_S.mp4`](docs/images/path_pqrs_P_to_S.mp4)
+
+
+https://github.com/user-attachments/assets/83d62c97-a0f1-4971-af76-685997155d0e
+
 
 ### Підсумкова матриця найкоротших відстаней
 
