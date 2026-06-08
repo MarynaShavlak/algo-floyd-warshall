@@ -215,6 +215,46 @@ _EN: Dict[str, str] = {
     "  {name}: {n} кадрів (покращень: {imp})":
         "  {name}: {n} frames (improvements: {imp})",
 
+    # --- walkthrough.py + examples/05_code_walkthrough (панелі «код ↔ матриця») ---
+    # рядок коду з коментарем (решта рядків CODE — чистий код, перекладу не потребує)
+    "            # else: лишаємо старе значення":
+        "            # else: keep the old value",
+    # заголовки правої панелі (матриці)
+    "k = {k}: стан до кроку": "k = {k}: state before the step",
+    "k = {k}: перебір пар (i, j)": "k = {k}: sweeping pairs (i, j)",
+    "k = {k}: підсумок кроку": "k = {k}: step result",
+    # підписи-вердикти під кроком
+    "Ініціалізація: D = прямі ребра (∞ де немає), nxt — перша вершина шляху":
+        "Initialization: D = direct edges (∞ where none), nxt = first vertex on the path",
+    "Відкрили {k}: внутрішні цикли покращили {n} відстаней":
+        "Opened {k}: the inner loops improved {n} distances",
+    "Відкрили {k}: коротших шляхів не знайшлося":
+        "Opened {k}: no shorter paths found",
+    "Відкриваємо {k}; два внутрішні цикли перебиратимуть усі пари (i, j)":
+        "Opening {k}; the two inner loops will sweep every pair (i, j)",
+    "({a},{b}): рядок/стовпець {k} або діагональ — покращити не може":
+        "({a},{b}): row/column {k} or the diagonal — cannot improve",
+    "({a},{b}): D = min({old}, {expr}) = {new}  ✔ оновлено":
+        "({a},{b}): D = min({old}, {expr}) = {new}  ✔ updated",
+    "({a},{b}): D = min({old}, {expr}) = {old}  — без змін":
+        "({a},{b}): D = min({old}, {expr}) = {old}  — no change",
+    "Готово: {k} покращила {n} відстаней":
+        "Done: {k} improved {n} distances",
+    # легенда підсвічування коду
+    "активний рядок": "active line",
+    "оновлення (D покращилося)": "update (D improved)",
+    "без змін": "no change",
+    # заголовки сіток + консоль (examples/05)
+    "Код ↔ матриця D: огляд по проміжних вершинах k":
+        "Code ↔ matrix D: overview by intermediate vertices k",
+    "Код ↔ матриця D по клітинках (i, j) для k = {k}":
+        "Code ↔ matrix D cell by cell (i, j) for k = {k}",
+    "Генерую покрокові панелі «код ↔ матриця»…":
+        "Generating step-by-step code ↔ matrix panels…",
+    "  {name}: огляд, {n} кроків": "  {name}: overview, {n} steps",
+    "  {name}: по клітинках, {n} кадрів (k = {k})":
+        "  {name}: cell by cell, {n} frames (k = {k})",
+
     # --- animation.save_animation (діагностика MP4, рідкісні шляхи) ------------
     "  ({name} пропущено — ffmpeg недоступний; pip install imageio-ffmpeg для відео)":
         "  ({name} skipped — ffmpeg unavailable; pip install imageio-ffmpeg for video)",

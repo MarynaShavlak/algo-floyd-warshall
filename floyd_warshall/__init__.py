@@ -5,7 +5,13 @@
 * :mod:`floyd_warshall.core` — сам алгоритм (``floyd_warshall``,
   ``floyd_warshall_steps``), відновлення шляху та виявлення від'ємних циклів;
 * :mod:`floyd_warshall.visualization` — функції малювання графів, матриць та
-  покрокових кадрів (потребують ``matplotlib`` і ``networkx``).
+  покрокових кадрів (потребують ``matplotlib`` і ``networkx``);
+* :mod:`floyd_warshall.walkthrough` — покрокова візуалізація «код ↔ матриця» з
+  підсвічуванням активних рядків коду (потребує ``matplotlib``).
+
+``core`` та ``i18n`` лишаються без важких залежностей, тож ``import floyd_warshall``
+не тягне ``matplotlib``; модулі малювання імпортують явно (``from
+floyd_warshall.visualization import …`` / ``… .walkthrough import …``).
 
 Приклад::
 

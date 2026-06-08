@@ -139,6 +139,43 @@ def test_save_animation_writes_gif_and_maybe_mp4():
             assert os.path.exists(mp4) and os.path.getsize(mp4) > 0
 
 
+def test_walkthrough_builds_and_renders():
+    """walkthrough «код ↔ матриця»: журнал кроків будується, обидва рівні рендеряться.
+
+    ``build_cell_steps`` містить внутрішній ``assert`` проти ``floyd_warshall_steps``,
+    тож цей тест заодно перевіряє, що ручний скан пар (i, j) збігається з алгоритмом.
+    """
+    from floyd_warshall.walkthrough import (  # noqa: E402
+        best_focus_k,
+        build_cell_steps,
+        build_overview_steps,
+        draw_code_walkthrough_grid,
+        pick_illustrative,
+        render_code_step,
+    )
+
+    # огляд: початковий знімок + по одному на кожну вершину
+    overview = build_overview_steps(_ADJ, _LABELS)
+    assert len(overview) == len(_LABELS) + 1
+    fig = draw_code_walkthrough_grid(overview, _LABELS, "t")
+    assert fig is not None
+    plt.close(fig)
+
+    # по клітинках для найпоказовішого k (тут спрацьовує внутрішній assert)
+    k = best_focus_k(_ADJ)
+    cells = build_cell_steps(_ADJ, k, _LABELS)
+    kinds = {s["kind"] for s in cells}
+    assert {"k", "final"} <= kinds          # є контекст-крок і підсумок
+    assert any(s["hl"] for s in cells)      # десь є підсвічування рядків коду
+
+    grid = draw_code_walkthrough_grid(pick_illustrative(cells), _LABELS, "t")
+    assert grid is not None
+    plt.close(grid)
+    frame = render_code_step(cells[1], _LABELS)
+    assert frame is not None
+    plt.close(frame)
+
+
 def test_report_distances_handles_missing_path():
     """#2: пара без шляху (C → A) не повинна валити report_distances."""
     final, nxt, _ = floyd_warshall_steps(_ADJ)
