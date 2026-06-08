@@ -33,7 +33,7 @@ for _p in (_ROOT, os.path.join(_ROOT, "examples")):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
-from floyd_warshall.animation import save_gif  # noqa: E402
+from floyd_warshall.animation import save_animation, save_gif  # noqa: E402
 from floyd_warshall.core import floyd_warshall_steps  # noqa: E402
 from floyd_warshall.visualization import (  # noqa: E402
     configure_style,
@@ -111,6 +111,32 @@ def test_save_gif_rejects_empty():
         except ValueError:
             raised = True
         assert raised, "save_gif мав кинути ValueError на порожньому списку"
+
+
+def test_save_animation_writes_gif_and_maybe_mp4():
+    """save_animation: GIF збирається ЗАВЖДИ; MP4 — лише якщо доступний ffmpeg."""
+    from PIL import Image
+
+    frames = []
+    for i in range(3):
+        fig, ax = plt.subplots(figsize=(2.5, 2))   # непарні пікселі — перевірка парного паддингу MP4
+        ax.plot([0, 1], [0, i + 1])                # кадри різні, інакше відео «злило» б їх
+        ax.set_title(str(i))
+        frames.append(fig)
+
+    with tempfile.TemporaryDirectory() as d:
+        gif = os.path.join(d, "anim.gif")
+        mp4 = os.path.join(d, "anim.mp4")
+        result = save_animation(frames, gif, [200, 200, 200], mp4_path=mp4)
+
+        assert os.path.exists(gif)                  # GIF — гарантований формат
+        with Image.open(gif) as im:
+            assert im.n_frames == 3
+        # MP4 — best-effort: якщо ffmpeg є, save_animation повертає шлях і файл існує;
+        # якщо немає — повертає None і GIF усе одно зібрано (білд не падає).
+        if result is not None:
+            assert result == mp4
+            assert os.path.exists(mp4) and os.path.getsize(mp4) > 0
 
 
 def test_report_distances_handles_missing_path():

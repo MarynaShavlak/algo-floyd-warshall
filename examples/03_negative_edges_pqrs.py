@@ -19,6 +19,7 @@ from floyd_warshall.core import (  # noqa: E402
     has_negative_cycle,
     reconstruct_path,
 )
+from floyd_warshall.i18n import t  # noqa: E402
 from floyd_warshall.visualization import (  # noqa: E402
     configure_style,
     draw_evolution,
@@ -38,11 +39,12 @@ def main() -> None:
     final_dist, nxt, snapshots = floyd_warshall_steps(graph_neg)
 
     # 1) граф із від'ємним ребром
-    save_figure(draw_graph(graph_neg, pos_neg, labels, title="Граф із від'ємним ребром (Q → R = −2)", curved=True),
+    save_figure(draw_graph(graph_neg, pos_neg, labels,
+                           title=t("Граф із від'ємним ребром (Q → R = −2)"), curved=True),
                 "graph_pqrs.png")
 
     # 2) початкова матриця
-    save_figure(draw_matrix_standalone(snapshots[0]["matrix"], labels, title="Початкова матриця D"),
+    save_figure(draw_matrix_standalone(snapshots[0]["matrix"], labels, title=t("Початкова матриця D")),
                 "matrix_initial_pqrs.png")
 
     # 3) детальний кадр після кожної проміжної вершини k = P..S
@@ -52,7 +54,7 @@ def main() -> None:
 
     # 4) зведена сітка еволюції
     save_figure(draw_evolution(snapshots, labels,
-                               "Еволюція матриці відстаней D (відкриваємо вершини P → S)", ncols=3),
+                               t("Еволюція матриці відстаней D (відкриваємо вершини P → S)"), ncols=3),
                 "evolution_pqrs.png")
 
     # 5) підсумкова матриця + відновлення шляхів (текст): P→R, P→S, Q→S
@@ -60,15 +62,16 @@ def main() -> None:
 
     # 6) підсвічений найкоротший шлях P → S (іде через від'ємне ребро)
     path_p_s = reconstruct_path(nxt, 0, 3)
-    title = "Найкоротший шлях P → S: " + " → ".join(labels[w] for w in path_p_s) + "  (довжина 5)"
+    title = t("Найкоротший шлях P → S: {path}  (довжина 5)").format(
+        path=" → ".join(labels[w] for w in path_p_s))
     save_figure(draw_graph(graph_neg, pos_neg, labels, highlight_path=path_p_s, title=title, curved=True),
                 "path_pqrs_P_to_S.png")
 
     # 7) підсумкова матриця (окремо) + перевірка від'ємного циклу
-    save_figure(draw_matrix_standalone(final_dist, labels, title="Підсумкова матриця найкоротших відстаней"),
+    save_figure(draw_matrix_standalone(final_dist, labels, title=t("Підсумкова матриця найкоротших відстаней")),
                 "matrix_final_pqrs.png")
     assert not has_negative_cycle(final_dist), "Виявлено від'ємний цикл!"
-    print("\nВід'ємних циклів немає, матрицю обчислено коректно ✔")
+    print(t("\nВід'ємних циклів немає, матрицю обчислено коректно ✔"))
 
     print_saved_location()
 

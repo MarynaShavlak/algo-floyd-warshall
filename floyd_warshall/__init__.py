@@ -27,6 +27,7 @@ from .core import (
     has_negative_cycle,
     reconstruct_path,
 )
+from .i18n import get_lang, set_lang, t
 
 __all__ = [
     "INF",
@@ -35,6 +36,10 @@ __all__ = [
     "floyd_warshall_steps",
     "reconstruct_path",
     "has_negative_cycle",
+    # двомовні підписи (uk/en) — без важких залежностей, тож безпечно тут
+    "t",
+    "set_lang",
+    "get_lang",
 ]
 
 # Єдине джерело правди для версії пакета: pyproject.toml читає його звідси через

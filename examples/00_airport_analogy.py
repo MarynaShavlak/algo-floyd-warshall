@@ -13,6 +13,7 @@
 from _common import print_saved_location, save_figure
 from _graphs import ABCDEF
 
+from floyd_warshall.i18n import t  # noqa: E402
 from floyd_warshall.visualization import (  # noqa: E402
     configure_style,
     draw_airport_progressive,
@@ -35,12 +36,12 @@ def main() -> None:
     # 3) граф A–F як карта аеропортів
     save_figure(
         draw_graph(ABCDEF.adjacency, ABCDEF.positions, ABCDEF.labels,
-                   title="Карта аеропортів: вершини = аеропорти, ребра = прямі рейси (тривалість)",
+                   title=t("Карта аеропортів: вершини = аеропорти, ребра = прямі рейси (тривалість)"),
                    figsize=(7, 5)),
         "airport_map_abcdef.png",
     )
 
-    print("Збережено 3 рисунки аналогії з аеропортами.")
+    print(t("Збережено 3 рисунки аналогії з аеропортами."))
     print_saved_location()
 
 

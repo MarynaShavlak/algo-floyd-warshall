@@ -29,6 +29,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 
 from .core import INF
+from .i18n import t
 from .style import (
     FIGURE_DPI,
     configure_style,
@@ -110,7 +111,7 @@ def draw_graph(
     pos: Dict[int, Tuple[float, float]],
     labels: Sequence[str],
     highlight_path: Optional[Sequence[int]] = None,
-    title: str = "Орієнтований зважений граф",
+    title: Optional[str] = None,
     curved: bool = False,
     figsize: Tuple[float, float] = (7, 4.5),
 ):
@@ -159,7 +160,7 @@ def draw_graph(
         bbox=dict(boxstyle="round,pad=0.15", fc="white", ec="none", alpha=0.85),
     )
 
-    ax.set_title(title)
+    ax.set_title(t("Орієнтований зважений граф") if title is None else title)
     ax.axis("off")
     fig.tight_layout()
     return fig
@@ -224,21 +225,22 @@ def draw_airport_relaxation(direct: float = 10, leg1: float = 4, leg2: float = 3
                 fontsize=12, color=color, fontweight="bold", zorder=5,
                 bbox=dict(boxstyle="round,pad=0.18", fc="white", ec=color, alpha=0.95))
 
-    _leg(pos_i, pos_k, f"{leg1:g} год", transfer_color)
-    _leg(pos_k, pos_j, f"{leg2:g} год", transfer_color)
-    ax.text(2.5, -0.6, f"прямий рейс: {direct:g} год", ha="center", va="center",
+    _leg(pos_i, pos_k, t("{leg:g} год").format(leg=leg1), transfer_color)
+    _leg(pos_k, pos_j, t("{leg:g} год").format(leg=leg2), transfer_color)
+    ax.text(2.5, -0.6, t("прямий рейс: {direct:g} год").format(direct=direct), ha="center", va="center",
             fontsize=12, color=direct_color, fontweight="bold", zorder=5,
             bbox=dict(boxstyle="round,pad=0.18", fc="white", ec=direct_color, alpha=0.95))
 
+    # суто формульний рядок (без слів) — однаковий обома мовами, тож без t()
     ax.text(2.5, -1.5, f"D[{i_label}][{j_label}] = min( {direct:g} ,  {leg1:g}+{leg2:g} ) = {min(direct, via):g}",
             ha="center", va="center", fontsize=14, family="monospace",
             color=TEXT_RESULT, fontweight="bold")
-    note = (f"пересадка через {k_label} коротша за прямий рейс"
-            if transfer_wins else f"прямий рейс коротший за пересадку через {k_label}")
+    note = (t("пересадка через {k} коротша за прямий рейс").format(k=k_label)
+            if transfer_wins else t("прямий рейс коротший за пересадку через {k}").format(k=k_label))
     ax.text(2.5, -2.05, note, ha="center", va="center", fontsize=11,
             color=GREEN_TXT if transfer_wins else HEADER_TXT, style="italic")
 
-    ax.set_title(f"Аналогія: прямий рейс проти пересадки через хаб {k_label}", fontsize=14, pad=10)
+    ax.set_title(t("Аналогія: прямий рейс проти пересадки через хаб {k}").format(k=k_label), fontsize=14, pad=10)
     fig.tight_layout()
     return fig
 
@@ -274,8 +276,9 @@ def _progressive_panel(ax, pos, edges, allowed: str, path: List[str], caption: s
     for name, xy in pos.items():
         _airport_node(ax, xy, name, color=PATH_COLOR if name in path else NODE_COLOR,
                       r=0.28, fontsize=13)
-    ax.set_title(f"Дозволено пересадки: {allowed}", fontsize=12, color=HEADER_TXT, pad=6)
-    ax.text(2.25, -1.45, caption, ha="center", va="center", fontsize=11,
+    ax.set_title(t("Дозволено пересадки: {allowed}").format(allowed=allowed),
+                 fontsize=12, color=HEADER_TXT, pad=6)
+    ax.text(2.25, -1.45, t(caption), ha="center", va="center", fontsize=11,
             color=HEADER_TXT, fontweight="bold")
 
 
@@ -287,7 +290,7 @@ def draw_airport_progressive(figsize: Tuple[float, float] = (13.5, 4.6)):
     fig, axes = plt.subplots(1, 3, figsize=figsize)
     for ax, (allowed, path, caption) in zip(axes, _PROG_PANELS):
         _progressive_panel(ax, _PROG_POS, _PROG_EDGES, allowed, path, caption)
-    fig.suptitle("Відкриваємо аеропорти-хаби по черзі — маршрут i → j коротшає", fontsize=14)
+    fig.suptitle(t("Відкриваємо аеропорти-хаби по черзі — маршрут i → j коротшає"), fontsize=14)
     fig.tight_layout(rect=(0, 0, 1, 0.94))
     return fig
 
@@ -307,7 +310,7 @@ def draw_airport_progressive_panel(
     allowed, path, caption = _PROG_PANELS[index]
     fig, ax = plt.subplots(figsize=figsize)
     _progressive_panel(ax, _PROG_POS, _PROG_EDGES, allowed, path, caption)
-    fig.suptitle("Відкриваємо хаби по черзі — маршрут i → j коротшає", fontsize=12)
+    fig.suptitle(t("Відкриваємо хаби по черзі — маршрут i → j коротшає"), fontsize=12)
     fig.tight_layout(rect=(0, 0, 1, 0.92))
     return fig
 
@@ -421,7 +424,7 @@ def draw_matrix_standalone(
             ax.text(cxc(j), ryc(i), format_value(v), ha="center", va="center",
                     fontsize=14, color=MUTED_TXT if v == INF else "black")
 
-    ax.set_title(title or "Матриця D", fontsize=15, pad=12)
+    ax.set_title(title if title is not None else t("Матриця D"), fontsize=15, pad=12)
     fig.tight_layout()
     return fig
 
@@ -522,8 +525,9 @@ def draw_floyd_step(
                 ]
                 dy = 0.34
                 y_start = row_yc(i) - dy * (len(lines) - 1) / 2
-                for t, (txt, col, w) in enumerate(lines):
-                    ax.text(x0 + 0.16, y_start + t * dy, txt, ha="left", va="center",
+                # NB: не називаємо лічильник `t` — це затінило б імпортовану t() (i18n)
+                for li, (txt, col, w) in enumerate(lines):
+                    ax.text(x0 + 0.16, y_start + li * dy, txt, ha="left", va="center",
                             fontsize=16.8 if w == "bold" else 15.4, family="monospace", color=col, fontweight=w)
             else:
                 v = matrix[i][j]
@@ -535,20 +539,21 @@ def draw_floyd_step(
     ax.add_patch(plt.Rectangle((xs[k], row_top(0)), cell_w, n * cell_h, fill=False, edgecolor=BLUE_EDGE, linewidth=2.5))
 
     ax.text(total_w / 2, total_h - bot_pad * 0.4,
-            "у кожній клітинці — повна формула:  D[i][j] = min( поточне , шлях через k ) = min( числа ) = результат (жирним)",
+            t("у кожній клітинці — повна формула:  D[i][j] = min( поточне , шлях через k ) = min( числа ) = результат (жирним)"),
             ha="center", va="center", fontsize=8.2, color=MUTED_TXT, style="italic")
 
     kn = labels[k]
-    ax.annotate(f"Стовпець {kn} містить\nD[i][{kn}]  (відстань до {kn})",
+    ax.annotate(t("Стовпець {k} містить\nD[i][{k}]  (відстань до {k})").format(k=kn),
                 xy=(cell_xc(k), row_top(0)), xytext=(cell_xc(k), top_pad * 0.30),
                 ha="center", va="center", fontsize=10, color=BLUE_EDGE, fontweight="bold",
                 arrowprops=dict(arrowstyle="-|>", color=BLUE_EDGE, lw=1.8))
-    ax.annotate(f"рядок {kn} містить\nD[{kn}][j]\n(відстань від {kn})",
+    ax.annotate(t("рядок {k} містить\nD[{k}][j]\n(відстань від {k})").format(k=kn),
                 xy=(left_pad, row_yc(k)), xytext=(left_pad * 0.46, row_yc(k)),
                 ha="center", va="center", fontsize=10, color=BLUE_EDGE, fontweight="bold",
                 arrowprops=dict(arrowstyle="-|>", color=BLUE_EDGE, lw=1.8))
 
-    ax.set_title(title or f"Матриця D після відкриття вершини {kn}", fontsize=14, pad=12)
+    ax.set_title(title if title is not None else t("Матриця D після відкриття вершини {k}").format(k=kn),
+                 fontsize=14, pad=12)
     fig.tight_layout()
     return fig
 
@@ -572,7 +577,7 @@ def draw_evolution(
     fig, axes = plt.subplots(nrows, ncols, figsize=(ncols * 3.3, nrows * 3.3))
     axes = axes.flatten() if hasattr(axes, "flatten") else [axes]
 
-    titles = ["Початок"] + [f"Після {labels[s['k']]}" for s in snapshots[1:]]
+    titles = [t("Початок")] + [t("Після {k}").format(k=labels[s["k"]]) for s in snapshots[1:]]
     for idx, snap in enumerate(snapshots):
         draw_matrix(axes[idx], snap["matrix"], labels, titles[idx],
                     pivot=snap["k"], changed=snap["changed"], prev=snap["prev"])
@@ -597,27 +602,29 @@ def step_summary(snap: Dict[str, object], labels: Sequence[str]) -> str:
     prev = snap["prev"]
     n = len(prev)
     bar = "=" * 60
-    out = [bar, f"Крок: проміжна вершина k = {labels[k]}", bar]
+    out = [bar, t("Крок: проміжна вершина k = {k}").format(k=labels[k]), bar]
 
     if not changed:
-        out.append("Жодна відстань не покращилася на цьому кроці.")
+        out.append(t("Жодна відстань не покращилася на цьому кроці."))
         no_in = all(prev[i][k] == INF for i in range(n) if i != k)
         no_out = all(prev[k][j] == INF for j in range(n) if j != k)
         if no_in:
-            out.append(f"  Причина: у вершину {labels[k]} не входить жодне ребро (D[i][{labels[k]}] = ∞).")
+            out.append(t("  Причина: у вершину {k} не входить жодне ребро (D[i][{k}] = ∞).").format(k=labels[k]))
         elif no_out:
-            out.append(f"  Причина: з вершини {labels[k]} не виходить жодне ребро (D[{labels[k]}][j] = ∞).")
+            out.append(t("  Причина: з вершини {k} не виходить жодне ребро (D[{k}][j] = ∞).").format(k=labels[k]))
         else:
-            out.append(f"  Через {labels[k]} не знайшлося коротших шляхів.")
+            out.append(t("  Через {k} не знайшлося коротших шляхів.").format(k=labels[k]))
     else:
-        out.append(f"Покращено відстаней: {len(changed)}")
+        out.append(t("Покращено відстаней: {n}").format(n=len(changed)))
         for (i, j) in sorted(changed):
-            a, b = prev[i][k], prev[k][j]
+            va, vb = prev[i][k], prev[k][j]   # числові опорні значення для _sum_expr
             new = snap["matrix"][i][j]
             old = prev[i][j]
             out.append(
-                f"  D[{labels[i]}][{labels[j]}]: {format_value(old)} → {format_value(new)}   "
-                f"(бо D[{labels[i]}][{labels[k]}] + D[{labels[k]}][{labels[j]}] = {_sum_expr(a, b)} = {format_value(new)})"
+                t("  D[{a}][{b}]: {old} → {new}   (бо D[{a}][{k}] + D[{k}][{b}] = {expr} = {new})").format(
+                    a=labels[i], b=labels[j], k=labels[k],
+                    old=format_value(old), new=format_value(new), expr=_sum_expr(va, vb),
+                )
             )
     return "\n".join(out)
 
@@ -631,7 +638,7 @@ def show_step(snap: Dict[str, object], labels: Sequence[str], save_path: Optiona
     print(step_summary(snap, labels))
     fig = draw_floyd_step(
         snap["matrix"], snap["k"], labels, prev=snap["prev"], changed=snap["changed"],
-        title=f"Матриця D після відкриття вершини {labels[snap['k']]}",
+        title=t("Матриця D після відкриття вершини {k}").format(k=labels[snap["k"]]),
     )
     if save_path:
         fig.savefig(save_path, bbox_inches="tight", dpi=FIGURE_DPI)

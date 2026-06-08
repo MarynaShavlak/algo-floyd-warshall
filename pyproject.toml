@@ -28,6 +28,11 @@ dependencies = [
 dev = [
     "pytest>=7.0",
 ]
+# Рендер анімацій у .mp4 без системного ffmpeg (через бінарник із imageio-ffmpeg).
+# Базова установка лишається легкою: без цього extra збираються лише GIF.
+video = [
+    "imageio-ffmpeg>=0.4",
+]
 
 [tool.setuptools]
 packages = ["floyd_warshall"]

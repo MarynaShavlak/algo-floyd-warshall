@@ -15,6 +15,7 @@ from _graphs import ABCDEF
 import matplotlib.pyplot as plt  # noqa: E402
 
 from floyd_warshall.core import floyd_warshall_steps, reconstruct_path  # noqa: E402
+from floyd_warshall.i18n import t  # noqa: E402
 from floyd_warshall.visualization import (  # noqa: E402
     configure_style,
     draw_evolution,
@@ -32,16 +33,16 @@ def main() -> None:
     labels, graph, pos = EXAMPLE.labels, EXAMPLE.adjacency, EXAMPLE.positions
 
     # 1) сам граф
-    save_figure(draw_graph(graph, pos, labels, title="Орієнтований зважений граф", figsize=(7, 5)),
+    save_figure(draw_graph(graph, pos, labels, title=t("Орієнтований зважений граф"), figsize=(7, 5)),
                 "graph_abcdef.png")
 
     # 2) алгоритм зі знімками + матриця наступних вершин
     final_dist, nxt, snapshots = floyd_warshall_steps(graph)
-    print("Готово: зібрано", len(snapshots), "знімків (початковий + по одному на кожну вершину).")
+    print(t("Готово: зібрано {n} знімків (початковий + по одному на кожну вершину).").format(n=len(snapshots)))
 
     # 3) початкова матриця (компактний стиль на власній фігурі)
     fig, ax = plt.subplots(figsize=(5.2, 5.2))
-    draw_matrix(ax, snapshots[0]["matrix"], labels, "Початкова матриця D  (жодної проміжної вершини)")
+    draw_matrix(ax, snapshots[0]["matrix"], labels, t("Початкова матриця D  (жодної проміжної вершини)"))
     fig.tight_layout()
     save_figure(fig, "matrix_initial_abcdef.png")
 
@@ -52,7 +53,7 @@ def main() -> None:
 
     # 5) зведена сітка еволюції
     save_figure(draw_evolution(snapshots, labels,
-                               "Еволюція матриці відстаней D (відкриваємо вершини A → F)", ncols=4),
+                               t("Еволюція матриці відстаней D (відкриваємо вершини A → F)"), ncols=4),
                 "evolution_abcdef.png")
 
     # 6) підсумкова матриця + відновлення шляхів (текст): A→D, A→F, A→C
@@ -60,7 +61,8 @@ def main() -> None:
 
     # 7) підсвічений найкоротший шлях A → D на графі
     path_a_d = reconstruct_path(nxt, 0, 3)
-    title = "Найкоротший шлях A → D: " + " → ".join(labels[v] for v in path_a_d) + "  (довжина 11)"
+    title = t("Найкоротший шлях A → D: {path}  (довжина 11)").format(
+        path=" → ".join(labels[v] for v in path_a_d))
     save_figure(draw_graph(graph, pos, labels, highlight_path=path_a_d, title=title, figsize=(7, 5)),
                 "path_abcdef_A_to_D.png")
 
